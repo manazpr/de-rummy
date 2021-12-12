@@ -1,12 +1,21 @@
 const express = require('express')
 const http = require('http');
+const https = require('https');
 const WebSocket = require('ws');
-const Game = require('../game');
+const fs = require('fs');
+const Game = require('./game');
 
 const app = express();
 
+// SSL Files
+const sslOptions = {
+  cert: fs.readFileSync('./fullchain.pem'),
+  key: fs.readFileSync('./privkey.pem')
+};
+
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const secureServer = https.createServer(sslOptions, app)
+const wss = new WebSocket.Server({ server: secureServer });
 const rummy = new Game(wss);
 
 // Serve Static Files/Assets
@@ -18,7 +27,7 @@ wss.on('close', () => console.log('*disconnected*'));
 
 /*----------------------ENDPOINTS----------------------*/
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/newgame.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/join/:lobby', (req, res) => {
@@ -26,7 +35,7 @@ app.get('/join/:lobby', (req, res) => {
   if (rummy.addLobby(code)) {
     res.redirect('/game/' + req.params.lobby + '/' + rummy.lobbys[code].token);
   } else {
-    res.redirect('/newgame/');
+    res.redirect('/');
   }
 });
 
@@ -35,7 +44,7 @@ app.get('/joincpu/:lobby', (req, res) => {
   if (rummy.addLobby(code, cpu=true)) {
     res.redirect('/game/' + req.params.lobby + '/' + rummy.lobbys[code].token);
   } else {
-    res.redirect('/newgame/');
+    res.redirect('/');
   }
 });
 
@@ -45,7 +54,7 @@ app.get('/game/:lobby/:token', (req, res) => {
   if (req.params.token && rummy.lobbys[code] && rummy.lobbys[code].token == token) {
     res.sendFile(__dirname + '/public/game.html');
   } else {
-    res.redirect('/newgame/');
+    res.redirect('/');
   }
 });
 /*-----------------------------------------------------*/
@@ -53,4 +62,7 @@ app.get('/game/:lobby/:token', (req, res) => {
 // Start Server
 server.listen(5000, () => {
   console.log('Listening on port 5000...')
+});
+secureServer.listen(443, () => {
+  console.log('(Secure) Listening on port 443...')
 });
