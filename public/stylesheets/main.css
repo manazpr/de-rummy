@@ -1,0 +1,13 @@
+body {
+  background-color: #F9F9F9;
+}
+
+.centered {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.justsmallenough {
+  width: 20em;
+}
