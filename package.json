@@ -1,7 +1,7 @@
 {
   "name": "derummy",
   "version": "0.0.1",
-  "description": "A server for the Rummy card game",
+  "description": "Decentralised Rummy Game built on Polygon",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
